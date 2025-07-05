@@ -26,9 +26,9 @@ AutismCare is a comprehensive web application designed to support parents, careg
 
 ### 📈 Progress Tracking
 - Developmental milestone tracking across three categories:
-  - **Behavioral**: Behavioral patterns and responses
-  - **Communication**: Language and communication skills
-  - **Social**: Social interaction and engagement
+  -  Behavioral : Behavioral patterns and responses
+  -  Communication : Language and communication skills
+  -  Social : Social interaction and engagement
 - Achievement status tracking (Working on it / Achieved)
 - Severity indicators (Mild/Moderate/Severe)
 - Progress statistics and percentage completion
@@ -53,25 +53,25 @@ AutismCare is a comprehensive web application designed to support parents, careg
 ## Technical Architecture
 
 ### Frontend (React + TypeScript)
-- **Framework**: Vite + React 18
-- **Styling**: TailwindCSS with custom design system
-- **State Management**: Convex React hooks for real-time data
-- **UI Components**: Custom component library with consistent design
-- **Animations**: CSS animations and transitions for enhanced UX
+-  Framework : Vite + React 18
+-  Styling : TailwindCSS with custom design system
+-  State Management : Convex React hooks for real-time data
+-  UI Components : Custom component library with consistent design
+-  Animations : CSS animations and transitions for enhanced UX
 
 ### Backend (Convex)
-- **Database**: Convex real-time database
-- **Authentication**: Convex Auth with username/password
-- **Functions**: Type-safe queries, mutations, and actions
-- **Real-time Updates**: Automatic UI updates when data changes
-- **AI Integration**: OpenAI GPT-4.1-nano for AI assistant
+-  Database : Convex real-time database
+-  Authentication : Convex Auth with username/password
+-  Functions : Type-safe queries, mutations, and actions
+-  Real-time Updates : Automatic UI updates when data changes
+-  AI Integration : OpenAI GPT-4.1-nano for AI assistant
 
 ### Key Technologies
-- **TypeScript**: Full type safety across frontend and backend
-- **Convex**: Real-time backend-as-a-service
-- **TailwindCSS**: Utility-first CSS framework
-- **Sonner**: Toast notifications
-- **OpenAI API**: AI-powered assistance
+-  TypeScript : Full type safety across frontend and backend
+-  Convex : Real-time backend-as-a-service
+-  TailwindCSS : Utility-first CSS framework
+-  Sonner : Toast notifications
+-  OpenAI API : AI-powered assistance
 
 ## Database Schema
 
@@ -213,19 +213,19 @@ AutismCare is a comprehensive web application designed to support parents, careg
 ## User Interface Components
 
 ### Core Components
-- **App.tsx**: Main application component with routing
-- **Dashboard**: Overview and quick actions
-- **MChatQuestionnaire**: Interactive assessment interface
-- **ProgressTracking**: Milestone management and visualization
-- **AIAssistant**: Chat interface with AI
-- **ChildManagement**: Child profile management
-- **ProfileSetup**: Initial user profile creation
+-  App.tsx : Main application component with routing
+-  Dashboard : Overview and quick actions
+-  MChatQuestionnaire : Interactive assessment interface
+-  ProgressTracking : Milestone management and visualization
+-  AIAssistant : Chat interface with AI
+-  ChildManagement : Child profile management
+-  ProfileSetup : Initial user profile creation
 
 ### Design System
-- **Colors**: Primary (blue), Secondary (purple), Accent (teal), Success (green), Warning (yellow), Error (red)
-- **Typography**: Nunito Sans font family
-- **Spacing**: Consistent spacing scale using Tailwind
-- **Components**: Reusable button, input, card, and modal components
+-  Colors : Primary (blue), Secondary (purple), Accent (teal), Success (green), Warning (yellow), Error (red)
+-  Typography : Nunito Sans font family
+-  Spacing : Consistent spacing scale using Tailwind
+-  Components : Reusable button, input, card, and modal components
 
 ## Getting Started
 
@@ -247,26 +247,26 @@ AutismCare is a comprehensive web application designed to support parents, careg
 ## Usage Guide
 
 ### For Parents/Caregivers
-1. **Create Account**: Sign up with username/password
-2. **Setup Profile**: Complete profile with role and contact info
-3. **Add Child**: Enter child's basic information
-4. **Take M-CHAT**: Complete autism screening assessment
-5. **Track Progress**: Log developmental milestones
-6. **Use AI Assistant**: Get personalized guidance and support
+1.  Create Account : Sign up with username/password
+2.  Setup Profile : Complete profile with role and contact info
+3.  Add Child : Enter child's basic information
+4.  Take M-CHAT : Complete autism screening assessment
+5.  Track Progress : Log developmental milestones
+6.  Use AI Assistant : Get personalized guidance and support
 
 ### For Healthcare Professionals
-1. **Professional Account**: Set up with professional role
-2. **Multiple Children**: Manage multiple patient profiles
-3. **Assessment Review**: Review M-CHAT results and history
-4. **Progress Monitoring**: Track developmental progress over time
-5. **AI Consultation**: Use AI for evidence-based recommendations
+1.  Professional Account : Set up with professional role
+2.  Multiple Children : Manage multiple patient profiles
+3.  Assessment Review : Review M-CHAT results and history
+4.  Progress Monitoring : Track developmental progress over time
+5.  AI Consultation : Use AI for evidence-based recommendations
 
 ## M-CHAT Scoring System
 
 ### Risk Levels
-- **Low Risk (0-2 points)**: Typical development patterns
-- **Medium Risk (3-7 points)**: Some autism characteristics identified
-- **High Risk (8+ points)**: Higher likelihood of autism spectrum characteristics
+-  Low Risk (0-2 points) : Typical development patterns
+-  Medium Risk (3-7 points) : Some autism characteristics identified
+-  High Risk (8+ points) : Higher likelihood of autism spectrum characteristics
 
 ### Critical Items
 Certain questions are marked as critical and carry additional weight in the assessment.
