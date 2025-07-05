@@ -1,6 +1,6 @@
-import { action } from "./_generated/server";
+import { action } from "./_api/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
+import { api } from "./_api/api";
 
 export const generateAIResponse = action({
   args: {
