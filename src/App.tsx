@@ -84,6 +84,12 @@ function AppContent({
     }
   }, [children, selectedChildId, setSelectedChildId]);
 
+  // Navigation handler for ChildManagement
+  const handleChildManagementNavigation = (view: 'mchat' | 'progress', childId: string) => {
+    setSelectedChildId(childId);
+    setCurrentView(view);
+  };
+
   // Show profile setup if no profile exists
   if (profile === undefined) {
     return (
@@ -126,7 +132,7 @@ function AppContent({
               <AIAssistant selectedChildId={selectedChildId} />
             )}
             {currentView === 'children' && (
-              <ChildManagement />
+              <ChildManagement onNavigate={handleChildManagementNavigation} />
             )}
           </div>
         </div>

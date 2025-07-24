@@ -15,14 +15,22 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
     content: string;
     timestamp: number;
   }>>([]);
-  const [sessionType, setSessionType] = useState<"general" | "assessment" | "therapy">("general");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const child = useQuery(api.children.getChild, selectedChildId ? { childId: selectedChildId as any } : "skip");
-  const progressStats = useQuery(api.progress.getProgressStats, selectedChildId ? { childId: selectedChildId as any } : "skip");
-  const mchatHistory = useQuery(api.mchat.getMChatHistory, selectedChildId ? { childId: selectedChildId as any } : "skip");
+  const child = useQuery(
+    api.children.getChild,
+    selectedChildId ? { childId: selectedChildId as any } : "skip"
+  );
+  const progressStats = useQuery(
+    api.progress.getProgressStats,
+    selectedChildId ? { childId: selectedChildId as any } : "skip"
+  );
+  const mchatHistory = useQuery(
+    api.mchat.getMChatHistory,
+    selectedChildId ? { childId: selectedChildId as any } : "skip"
+  );
   
   const generateAIResponse = useAction(api.ai.generateAIResponse);
   const saveChatMessage = useAction(api.ai.saveChatMessage);
@@ -36,11 +44,11 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
   }, [chatHistory]);
 
   useEffect(() => {
-    // Welcome message
     if (chatHistory.length === 0) {
       setChatHistory([{
         role: "assistant",
-        content: "Hello! I'm your AI assistant specializing in autism support and child development. I'm here to help you understand your child's progress, provide guidance on developmental activities, and answer any questions you might have. How can I assist you today?",
+        content:
+          "Hello! I'm your AI assistant specializing in autism support and child development. I'm here to help you understand your child's progress, provide guidance on developmental activities, and answer any questions you might have. How can I assist you today?",
         timestamp: Date.now(),
       }]);
     }
@@ -49,17 +57,15 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
   const buildContext = () => {
     if (!selectedChildId || !child) return undefined;
 
-    const context = {
+    return {
       childAge: child.currentAge,
-      recentAssessments: mchatHistory?.slice(0, 3).map(assessment => 
+      recentAssessments: mchatHistory?.slice(0, 3).map(assessment =>
         `M-CHAT completed on ${new Date(assessment.completedAt).toLocaleDateString()} with ${assessment.riskLevel} risk level (score: ${assessment.totalScore}/20)`
       ),
-      progressData: progressStats ? 
-        `Overall progress: ${progressStats.overall.percentage}% (${progressStats.overall.achieved}/${progressStats.overall.total} milestones). Behavioral: ${progressStats.behavioral.percentage}%, Communication: ${progressStats.communication.percentage}%, Social: ${progressStats.social.percentage}%` 
+      progressData: progressStats ?
+        `Overall progress: ${progressStats.overall.percentage}% (${progressStats.overall.achieved}/${progressStats.overall.total} milestones). Behavioral: ${progressStats.behavioral.percentage}%, Communication: ${progressStats.communication.percentage}%, Social: ${progressStats.social.percentage}%`
         : undefined,
     };
-
-    return context;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -70,7 +76,6 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
     setMessage("");
     setIsLoading(true);
 
-    // Add user message to chat
     const newUserMessage = {
       role: "user" as const,
       content: userMessage,
@@ -79,14 +84,9 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
     setChatHistory(prev => [...prev, newUserMessage]);
 
     try {
-      // Generate AI response
       const context = buildContext();
-      const aiResponse = await generateAIResponse({
-        message: userMessage,
-        context,
-      });
+      const aiResponse = await generateAIResponse({ message: userMessage, context });
 
-      // Add AI response to chat
       const newAIMessage = {
         role: "assistant" as const,
         content: aiResponse,
@@ -94,14 +94,11 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
       };
       setChatHistory(prev => [...prev, newAIMessage]);
 
-      // Save to database
       await saveChatMessage({
         childId: selectedChildId as any || undefined,
         userMessage,
         aiResponse,
-        sessionType,
       });
-
     } catch (error) {
       toast.error("Failed to get AI response. Please try again.");
       console.error(error);
@@ -114,16 +111,11 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
   const clearChat = () => {
     setChatHistory([{
       role: "assistant",
-      content: "Hello! I'm your AI assistant specializing in autism support and child development. I'm here to help you understand your child's progress, provide guidance on developmental activities, and answer any questions you might have. How can I assist you today?",
+      content:
+        "Hello! I'm your AI assistant specializing in autism support and child development. I'm here to help you understand your child's progress, provide guidance on developmental activities, and answer any questions you might have. How can I assist you today?",
       timestamp: Date.now(),
     }]);
   };
-
-  const sessionTypes = [
-    { id: "general", label: "General Support", icon: "💬", color: "bg-primary" },
-    { id: "assessment", label: "Assessment Help", icon: "📝", color: "bg-secondary" },
-    { id: "therapy", label: "Therapy Guidance", icon: "🎯", color: "bg-accent" },
-  ];
 
   const suggestedQuestions = [
     "What are some early signs of autism I should look for?",
@@ -140,37 +132,19 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
         <div>
           <h1 className="text-3xl font-bold text-dark">AI Assistant</h1>
           <p className="text-gray-600 mt-1">
-            {selectedChildId && child ? 
+            {selectedChildId && child ?
               `Personalized guidance for ${child.firstName} ${child.lastName}` :
               "Get expert guidance on autism support and child development"
             }
           </p>
         </div>
-        <div className="flex items-center space-x-3">
-          {/* Session Type Selector */}
-          <select
-            value={sessionType}
-            onChange={(e) => setSessionType(e.target.value as any)}
-            className="select-field text-sm"
-          >
-            {sessionTypes.map(type => (
-              <option key={type.id} value={type.id}>
-                {type.icon} {type.label}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={clearChat}
-            className="btn-secondary text-sm"
-          >
-            Clear Chat
-          </button>
-        </div>
+        <button onClick={clearChat} className="btn-secondary text-sm">
+          Clear Chat
+        </button>
       </div>
 
       {/* Chat Container */}
       <div className="flex-1 flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {chatHistory.map((msg, index) => (
             <div
@@ -180,25 +154,25 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
             >
               <div className={`max-w-3xl ${msg.role === "user" ? "order-2" : "order-1"}`}>
                 <div className={`flex items-start space-x-3 ${msg.role === "user" ? "flex-row-reverse space-x-reverse" : ""}`}>
-                  {/* Avatar */}
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    msg.role === "user" 
-                      ? "bg-primary text-white" 
-                      : "bg-accent text-white"
-                  }`}>
+                    msg.role === "user" ?
+                      "bg-primary text-white" :
+                      "bg-accent text-white"
+                  }`}
+                  >
                     {msg.role === "user" ? "👤" : "🤖"}
                   </div>
-                  
-                  {/* Message */}
                   <div className={`px-4 py-3 rounded-2xl ${
-                    msg.role === "user"
-                      ? "bg-primary text-white"
-                      : "bg-gray-100 text-dark"
-                  }`}>
+                    msg.role === "user" ?
+                      "bg-primary text-white" :
+                      "bg-gray-100 text-dark"
+                  }`}
+                  >
                     <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                     <p className={`text-xs mt-2 ${
                       msg.role === "user" ? "text-primary-light" : "text-gray-500"
-                    }`}>
+                    }`}
+                    >
                       {new Date(msg.timestamp).toLocaleTimeString()}
                     </p>
                   </div>
@@ -206,8 +180,7 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
               </div>
             </div>
           ))}
-          
-          {/* Loading indicator */}
+
           {isLoading && (
             <div className="flex justify-start animate-slide-up">
               <div className="flex items-start space-x-3">
@@ -224,11 +197,9 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
               </div>
             </div>
           )}
-          
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Suggested Questions */}
         {chatHistory.length <= 1 && (
           <div className="px-6 py-4 border-t border-gray-100">
             <p className="text-sm font-medium text-gray-700 mb-3">Suggested questions:</p>
@@ -246,7 +217,6 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
           </div>
         )}
 
-        {/* Input */}
         <div className="p-6 border-t border-gray-100">
           <form onSubmit={handleSubmit} className="flex space-x-3">
             <input
@@ -275,12 +245,11 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
         </div>
       </div>
 
-      {/* Context Info */}
       {selectedChildId && child && (
         <div className="mt-4 p-4 bg-gray-50 rounded-xl">
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Context:</span> I have access to {child.firstName}'s profile, 
-            {mchatHistory?.length ? ` ${mchatHistory.length} M-CHAT assessment(s),` : ""} 
+            <span className="font-medium">Context:</span> I have access to {child.firstName}'s profile,
+            {mchatHistory?.length ? ` ${mchatHistory.length} M-CHAT assessment(s),` : ""}
             {progressStats ? ` and progress data (${progressStats.overall.achieved} milestones tracked).` : " but no progress data yet."}
           </p>
         </div>

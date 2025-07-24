@@ -3,7 +3,11 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 
-export function ChildManagement() {
+interface ChildManagementProps {
+  onNavigate?: (view: 'mchat' | 'progress', childId: string) => void;
+}
+
+export function ChildManagement({ onNavigate }: ChildManagementProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingChild, setEditingChild] = useState<any>(null);
   const [formData, setFormData] = useState({
@@ -99,6 +103,15 @@ export function ChildManagement() {
     return `${months} months`;
   };
 
+  // Navigation functions
+  const navigateToProgress = (childId: string) => {
+    onNavigate?.('progress', childId);
+  };
+
+  const navigateToMChat = (childId: string) => {
+    onNavigate?.('mchat', childId);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
@@ -177,10 +190,16 @@ export function ChildManagement() {
               </div>
 
               <div className="flex space-x-2 mt-4 pt-4 border-t border-gray-100">
-                <button className="btn-primary flex-1 text-sm py-2">
+                <button 
+                  onClick={() => navigateToProgress(child._id)}
+                  className="btn-primary flex-1 text-sm py-2"
+                >
                   View Progress
                 </button>
-                <button className="btn-secondary flex-1 text-sm py-2">
+                <button 
+                  onClick={() => navigateToMChat(child._id)}
+                  className="btn-secondary flex-1 text-sm py-2"
+                >
                   M-CHAT
                 </button>
               </div>
@@ -216,7 +235,7 @@ export function ChildManagement() {
               {editingChild ? "Edit Child Profile" : "Add New Child"}
             </h2>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={(e) => { handleSubmit(e).catch(console.error); }} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-dark mb-2">

@@ -243,7 +243,7 @@ export function MChatQuestionnaire({ childId }: MChatQuestionnaireProps) {
         <div className="grid grid-cols-2 gap-4 mb-6">
           <button
             onClick={() => handleAnswer("yes")}
-            className="btn-success text-lg py-4 animate-scale-in"
+            className="btn-secondary hover:bg-green-500 hover:text-white hover:border-green-500 active:bg-green-600 active:text-white active:border-green-600 text-lg py-4 animate-scale-in transition-all duration-200"
             style={{ animationDelay: '100ms' }}
           >
             <span className="mr-2">✓</span>
@@ -251,7 +251,7 @@ export function MChatQuestionnaire({ childId }: MChatQuestionnaireProps) {
           </button>
           <button
             onClick={() => handleAnswer("no")}
-            className="btn-secondary text-lg py-4 animate-scale-in"
+            className="btn-secondary hover:bg-green-500 hover:text-white hover:border-green-500 active:bg-green-600 active:text-white active:border-green-600 text-lg py-4 animate-scale-in transition-all duration-200"
             style={{ animationDelay: '200ms' }}
           >
             <span className="mr-2">✗</span>
