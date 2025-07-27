@@ -5,9 +5,10 @@ import { toast } from "sonner";
 
 interface MChatQuestionnaireProps {
   childId: string;
+  onNavigate: (view: 'dashboard' | 'children' | 'mchat' | 'progress' | 'ai-assistant') => void;
 }
 
-export function MChatQuestionnaire({ childId }: MChatQuestionnaireProps) {
+export function MChatQuestionnaire({ childId, onNavigate }: MChatQuestionnaireProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [responses, setResponses] = useState<Array<{
     questionId: number;
@@ -21,6 +22,7 @@ export function MChatQuestionnaire({ childId }: MChatQuestionnaireProps) {
 
   const questions = useQuery(api.mchat.getMChatQuestions);
   const child = useQuery(api.children.getChild, { childId: childId as any });
+  const children = useQuery(api.children.getMyChildren);
   const saveMChatResponse = useMutation(api.mchat.saveMChatResponse);
 
   const totalQuestions = questions?.length || 20;
@@ -82,10 +84,114 @@ export function MChatQuestionnaire({ childId }: MChatQuestionnaireProps) {
     setResults(null);
   };
 
+  const handleBackToDashboard = () => {
+    try {
+      onNavigate('dashboard');
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback - you might want to use a different approach here
+      // For example, if your parent component expects a different value:
+      // onNavigate('children'); // or whatever the fallback should be
+    }
+  };
+
+  // Combined loading state for children, child, and questions
+  if (children === undefined || child === undefined || questions === undefined) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="card text-center">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-10 w-10 border-3 border-primary border-t-transparent"></div>
+            <div>
+              <h2 className="text-lg font-semibold text-dark mb-2">Loading M-CHAT Assessment</h2>
+              <p className="text-gray-600">Preparing questions and child profile...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if we have no children
+  if (children !== undefined && children.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto animate-fade-in">
+        <div className="card text-center">
+          <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-dark mb-4">No Children Added</h1>
+          <p className="text-gray-600 mb-6">
+            You need to add a child profile before you can start the M-CHAT assessment. 
+            The assessment helps screen for autism spectrum characteristics in toddlers.
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+            <h3 className="font-semibold text-blue-900 mb-2">About M-CHAT Assessment</h3>
+            <p className="text-sm text-blue-800">
+              The Modified Checklist for Autism in Toddlers (M-CHAT) is a 20-question screening tool 
+              designed for children between 16-30 months old to identify early signs of autism spectrum disorder.
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigate('children')}
+            className="btn-primary"
+          >
+            Add Child Profile
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if specific child doesn't exist
+  if (child === null) {
+    return (
+      <div className="max-w-2xl mx-auto animate-fade-in">
+        <div className="card text-center">
+          <div className="w-20 h-20 bg-error/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-dark mb-4">Child Not Found</h1>
+          <p className="text-gray-600 mb-6">
+            The selected child profile could not be found. Please select a different child 
+            or return to the dashboard.
+          </p>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => onNavigate('children')}
+              className="btn-secondary flex-1"
+            >
+              Manage Children
+            </button>
+            <button
+              onClick={handleBackToDashboard}
+              className="btn-primary flex-1"
+            >
+              Back to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
   if (!questions || !child) {
     return (
-      <div className="flex justify-center items-center min-h-96">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="max-w-2xl mx-auto">
+        <div className="card text-center">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-10 w-10 border-3 border-primary border-t-transparent"></div>
+            <div>
+              <h2 className="text-lg font-semibold text-dark mb-2">Loading M-CHAT Assessment</h2>
+              <p className="text-gray-600">Preparing questions and child profile...</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -168,7 +274,7 @@ export function MChatQuestionnaire({ childId }: MChatQuestionnaireProps) {
               Take Again
             </button>
             <button
-              onClick={() => window.history.back()}
+              onClick={handleBackToDashboard}
               className="btn-primary flex-1"
             >
               Back to Dashboard
@@ -199,10 +305,21 @@ export function MChatQuestionnaire({ childId }: MChatQuestionnaireProps) {
 
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
-      {/* Header */}
+      {/* Header with Back to Dashboard button */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-dark">M-CHAT Assessment</h1>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={handleBackToDashboard}
+              className="btn-icon hover:bg-gray-100"
+              title="Back to Dashboard"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
+            <h1 className="text-2xl font-bold text-dark">M-CHAT Assessment</h1>
+          </div>
           <span className="text-sm text-gray-600">
             {currentQuestion + 1} of {totalQuestions}
           </span>

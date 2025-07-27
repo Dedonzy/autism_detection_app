@@ -10,6 +10,8 @@ interface AIAssistantProps {
 export function AIAssistant({ selectedChildId }: AIAssistantProps) {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [currentTypingMessage, setCurrentTypingMessage] = useState("");
   const [chatHistory, setChatHistory] = useState<Array<{
     role: "user" | "assistant";
     content: string;
@@ -18,6 +20,7 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const child = useQuery(
     api.children.getChild,
@@ -41,7 +44,7 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
 
   useEffect(() => {
     scrollToBottom();
-  }, [chatHistory]);
+  }, [chatHistory, currentTypingMessage]);
 
   useEffect(() => {
     if (chatHistory.length === 0) {
@@ -53,6 +56,50 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
       }]);
     }
   }, []);
+
+  // Cleanup typing interval on unmount
+  useEffect(() => {
+    return () => {
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  const typeMessage = (fullMessage: string) => {
+    setIsTyping(true);
+    setCurrentTypingMessage("");
+    
+    let currentIndex = 0;
+    const words = fullMessage.split(" ");
+    
+    typingIntervalRef.current = setInterval(() => {
+      if (currentIndex < words.length) {
+        setCurrentTypingMessage(prev => {
+          const newMessage = prev + (currentIndex === 0 ? "" : " ") + words[currentIndex];
+          return newMessage;
+        });
+        currentIndex++;
+      } else {
+        // Typing complete
+        if (typingIntervalRef.current) {
+          clearInterval(typingIntervalRef.current);
+        }
+        
+        // Add the complete message to chat history
+        const newAIMessage = {
+          role: "assistant" as const,
+          content: fullMessage,
+          timestamp: Date.now(),
+        };
+        setChatHistory(prev => [...prev, newAIMessage]);
+        
+        // Reset typing state
+        setIsTyping(false);
+        setCurrentTypingMessage("");
+      }
+    }, 80); // Adjust speed here (milliseconds between words)
+  };
 
   const buildContext = () => {
     if (!selectedChildId || !child) return undefined;
@@ -70,7 +117,7 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || isLoading) return;
+    if (!message.trim() || isLoading || isTyping) return;
 
     const userMessage = message.trim();
     setMessage("");
@@ -87,28 +134,33 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
       const context = buildContext();
       const aiResponse = await generateAIResponse({ message: userMessage, context });
 
-      const newAIMessage = {
-        role: "assistant" as const,
-        content: aiResponse,
-        timestamp: Date.now(),
-      };
-      setChatHistory(prev => [...prev, newAIMessage]);
+      // Stop loading and start typing animation
+      setIsLoading(false);
+      typeMessage(aiResponse);
 
       await saveChatMessage({
         childId: selectedChildId as any || undefined,
+        sessionType: "general", // Set to the appropriate session type
         userMessage,
         aiResponse,
       });
     } catch (error) {
       toast.error("Failed to get AI response. Please try again.");
       console.error(error);
-    } finally {
       setIsLoading(false);
+    } finally {
       inputRef.current?.focus();
     }
   };
 
   const clearChat = () => {
+    // Clear any ongoing typing
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+    }
+    setIsTyping(false);
+    setCurrentTypingMessage("");
+    
     setChatHistory([{
       role: "assistant",
       content:
@@ -181,6 +233,26 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
             </div>
           ))}
 
+          {/* Typing Message */}
+          {isTyping && currentTypingMessage && (
+            <div className="flex justify-start animate-slide-up">
+              <div className="max-w-3xl">
+                <div className="flex items-start space-x-3">
+                  <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center text-sm font-medium">
+                    🤖
+                  </div>
+                  <div className="bg-gray-100 px-4 py-3 rounded-2xl text-dark">
+                    <p className="whitespace-pre-wrap leading-relaxed">
+                      {currentTypingMessage}
+                      <span className="inline-block w-2 h-5 bg-gray-400 ml-1 animate-pulse"></span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Loading State */}
           {isLoading && (
             <div className="flex justify-start animate-slide-up">
               <div className="flex items-start space-x-3">
@@ -193,6 +265,7 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
+                  <p className="text-xs text-gray-500 mt-1">Thinking...</p>
                 </div>
               </div>
             </div>
@@ -200,7 +273,7 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
           <div ref={messagesEndRef} />
         </div>
 
-        {chatHistory.length <= 1 && (
+        {chatHistory.length <= 1 && !isTyping && (
           <div className="px-6 py-4 border-t border-gray-100">
             <p className="text-sm font-medium text-gray-700 mb-3">Suggested questions:</p>
             <div className="flex flex-wrap gap-2">
@@ -209,6 +282,7 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
                   key={index}
                   onClick={() => setMessage(question)}
                   className="text-sm px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700 transition-colors duration-200"
+                  disabled={isLoading || isTyping}
                 >
                   {question}
                 </button>
@@ -226,11 +300,11 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Ask me anything about autism support, development, or your child's progress..."
               className="flex-1 input-field"
-              disabled={isLoading}
+              disabled={isLoading || isTyping}
             />
             <button
               type="submit"
-              disabled={!message.trim() || isLoading}
+              disabled={!message.trim() || isLoading || isTyping}
               className="btn-primary px-6"
             >
               {isLoading ? (
@@ -242,6 +316,14 @@ export function AIAssistant({ selectedChildId }: AIAssistantProps) {
               )}
             </button>
           </form>
+          
+          {/* Status indicator */}
+          {(isLoading || isTyping) && (
+            <div className="mt-2 flex items-center text-xs text-gray-500">
+              <div className="w-2 h-2 bg-accent rounded-full animate-pulse mr-2"></div>
+              {isLoading ? "Getting response..." : "AI is typing..."}
+            </div>
+          )}
         </div>
       </div>
 

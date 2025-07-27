@@ -18,7 +18,7 @@ export default function App() {
   const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen flex flex-col bg-light">
+    <div className="min-h-screen flex flex-col bg-light font-['Inter',_system-ui,_sans-serif]">
       <Authenticated>
         <AppContent 
           currentView={currentView}
@@ -29,16 +29,22 @@ export default function App() {
       </Authenticated>
       
       <Unauthenticated>
-        <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 via-white to-indigo-50">
           <div className="w-full max-w-md">
             <div className="text-center mb-8 animate-fade-in">
-              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
+              {/* Brand Name */}
+              <div className="mb-4">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent mb-2 font-['Poppins',_'Inter',_sans-serif] tracking-tight">
+                  AutismCare
+                </h1>
+                <div className="w-16 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full mb-3"></div>
+                <p className="text-gray-600 text-lg font-medium font-['Inter',_sans-serif]">
+                  Professional Detection & Support Platform
+                </p>
+                <p className="text-gray-500 text-sm mt-2 font-['Inter',_sans-serif]">
+                  Evidence-based assessments with AI-powered insights
+                </p>
               </div>
-              <h1 className="text-3xl font-bold text-dark mb-2">AutismCare</h1>
-              <p className="text-gray-600">Professional autism detection and support platform</p>
             </div>
             <SignInForm />
           </div>
@@ -55,7 +61,8 @@ export default function App() {
             border: '1px solid #E5E7EB',
             borderRadius: '12px',
             fontSize: '14px',
-            fontFamily: 'Nunito Sans',
+            fontFamily: 'Inter, system-ui, sans-serif',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
           },
         }}
       />
@@ -94,7 +101,10 @@ function AppContent({
   if (profile === undefined) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-10 w-10 border-3 border-primary border-t-transparent"></div>
+          <p className="text-gray-600 font-medium">Loading your profile...</p>
+        </div>
       </div>
     );
   }
@@ -123,10 +133,10 @@ function AppContent({
               />
             )}
             {currentView === 'mchat' && selectedChildId && (
-              <MChatQuestionnaire childId={selectedChildId} />
+              <MChatQuestionnaire childId={selectedChildId} onNavigate={setCurrentView} />
             )}
             {currentView === 'progress' && selectedChildId && (
-              <ProgressTracking childId={selectedChildId} />
+              <ProgressTracking childId={selectedChildId} onNavigate={setCurrentView} />
             )}
             {currentView === 'ai-assistant' && (
               <AIAssistant selectedChildId={selectedChildId} />
@@ -147,26 +157,30 @@ function Header({ currentView, setCurrentView, profile }: {
   profile: any;
 }) {
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-50">
+    <header className="bg-white/95 backdrop-blur-sm border-b border-gray-200 px-6 py-4 sticky top-0 z-50 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-dark">AutismCare</h1>
-            <p className="text-sm text-gray-500">Professional Platform</p>
+          {/* Header Logo */}
+          <div className="flex items-center space-x-3">
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-['Poppins',_'Inter',_sans-serif]">
+                AutismCare
+              </h1>
+              <p className="text-xs text-gray-500 font-medium font-['Inter',_sans-serif]">
+                Professional Platform
+              </p>
+            </div>
           </div>
         </div>
         
         <div className="flex items-center space-x-4">
           <div className="text-right">
-            <p className="text-sm font-medium text-dark">
+            <p className="text-sm font-semibold text-dark font-['Inter',_sans-serif]">
               {profile.firstName} {profile.lastName}
             </p>
-            <p className="text-xs text-gray-500 capitalize">{profile.role}</p>
+            <p className="text-xs text-gray-500 capitalize font-medium font-['Inter',_sans-serif]">
+              {profile.role}
+            </p>
           </div>
           <SignOutButton />
         </div>
@@ -197,46 +211,46 @@ function Sidebar({
   ];
 
   return (
-    <aside className="w-80 bg-white border-r border-gray-200 p-6">
+    <aside className="w-80 bg-white/95 backdrop-blur-sm border-r border-gray-200 p-6 shadow-sm">
       <nav className="space-y-2">
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => setCurrentView(item.id as View)}
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-300 font-['Inter',_sans-serif] ${
               currentView === item.id
-                ? 'bg-primary text-white shadow-md'
-                : 'text-gray-700 hover:bg-gray-50'
+                ? 'bg-gradient-to-r from-primary to-accent text-white shadow-lg transform scale-105'
+                : 'text-gray-700 hover:bg-gray-50 hover:shadow-md'
             }`}
           >
             <span className="text-lg">{item.icon}</span>
-            <span className="font-medium">{item.label}</span>
+            <span className="font-semibold">{item.label}</span>
           </button>
         ))}
       </nav>
 
       {children.length > 0 && (
         <div className="mt-8">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4 font-['Inter',_sans-serif]">
             Children
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {children.map((child) => (
               <button
                 key={child._id}
                 onClick={() => setSelectedChildId(child._id)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-300 ${
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-300 font-['Inter',_sans-serif] ${
                   selectedChildId === child._id
-                    ? 'bg-accent/10 border border-accent text-accent'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-gradient-to-r from-accent/10 to-secondary/10 border border-accent text-accent shadow-md transform scale-105'
+                    : 'text-gray-700 hover:bg-gray-50 hover:shadow-md'
                 }`}
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-accent to-secondary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                <div className="w-10 h-10 bg-gradient-to-br from-accent to-secondary rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg">
                   {child.firstName.charAt(0)}
                 </div>
                 <div>
-                  <p className="font-medium">{child.firstName} {child.lastName}</p>
-                  <p className="text-xs text-gray-500">{child.currentAge} months old</p>
+                  <p className="font-semibold">{child.firstName} {child.lastName}</p>
+                  <p className="text-xs text-gray-500 font-medium">{child.currentAge} months old</p>
                 </div>
               </button>
             ))}
